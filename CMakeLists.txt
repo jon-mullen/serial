@@ -1,8 +1,17 @@
-cmake_minimum_required(VERSION 2.8.3)
+cmake_minimum_required(VERSION 3.5)
 project(serial)
 
-# Find catkin
-find_package(catkin REQUIRED)
+# Default to C++14
+if(NOT CMAKE_CXX_STANDARD)
+  set(CMAKE_CXX_STANDARD 14)
+endif()
+
+if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+  add_compile_options(-Wall -Wextra -Wpedantic)
+endif()
+
+# Find ament
+find_package(ament_cmake REQUIRED)
 
 if(APPLE)
     find_library(IOKIT_LIBRARY IOKit)
@@ -13,17 +22,6 @@ if(UNIX AND NOT APPLE)
     # If Linux, add rt and pthread
     set(rt_LIBRARIES rt)
     set(pthread_LIBRARIES pthread)
-    catkin_package(
-        LIBRARIES ${PROJECT_NAME}
-        INCLUDE_DIRS include
-        DEPENDS rt pthread
-    )
-else()
-    # Otherwise normal call
-    catkin_package(
-        LIBRARIES ${PROJECT_NAME}
-        INCLUDE_DIRS include
-    )
 endif()
 
 ## Sources
@@ -57,24 +55,34 @@ else()
 endif()
 
 ## Uncomment for example
-add_executable(serial_example examples/serial_example.cc)
-add_dependencies(serial_example ${PROJECT_NAME})
-target_link_libraries(serial_example ${PROJECT_NAME})
+# add_executable(serial_example examples/serial_example.cc)
+# add_dependencies(serial_example ${PROJECT_NAME})
+# target_link_libraries(serial_example ${PROJECT_NAME})
 
 ## Include headers
 include_directories(include)
 
+ament_export_interfaces(export_${PROJECT_NAME} HAS_LIBRARY_TARGET)
+
 ## Install executable
 install(TARGETS ${PROJECT_NAME}
-    ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-    LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+    EXPORT export_${PROJECT_NAME}
+    ARCHIVE DESTINATION lib
+    LIBRARY DESTINATION lib
+    RUNTIME DESTINATION bin
 )
 
 ## Install headers
-install(FILES include/serial/serial.h include/serial/v8stdint.h
-  DESTINATION ${CATKIN_GLOBAL_INCLUDE_DESTINATION}/serial)
+install(FILES
+  include/serial/serial.h
+  include/serial/v8stdint.h
+  DESTINATION include/serial)
 
-## Tests
-if(CATKIN_ENABLE_TESTING)
-    add_subdirectory(tests)
-endif()
+ament_export_include_directories(include)
+
+# Tests
+ if(BUILD_TESTING)
+     add_subdirectory(tests)
+ endif()
+
+ament_package()
