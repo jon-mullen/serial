@@ -62,7 +62,8 @@ endif()
 ## Include headers
 include_directories(include)
 
-ament_export_targets(export_${PROJECT_NAME} HAS_LIBRARY_TARGET)
+# ament_export_targets(export_${PROJECT_NAME} HAS_LIBRARY_TARGET)
+ament_export_interfaces(export_${PROJECT_NAME} HAS_LIBRARY_TARGET)
 
 ## Install executable
 install(TARGETS ${PROJECT_NAME}
@@ -79,6 +80,7 @@ install(FILES
   DESTINATION include/serial)
 
 ament_export_include_directories(include)
+ament_export_libraries(${PROJECT_NAME})
 
 # Tests
  if(BUILD_TESTING)
